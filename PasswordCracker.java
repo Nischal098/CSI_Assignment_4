@@ -12,7 +12,7 @@ public class PasswordCracker {
 	private String tempStrCapitalize, tempStrYear, tempStrA, tempStr3, tempStr1;
 	private char[] tempcharCurrentPasswordA, tempcharCurrentPassword3, tempcharCurrentPassword1;
 	private List<char[]> tempCurrentPasswordA, tempCurrentPassword3, tempCurrentPassword1;
-	private List<String> currentPassAStr, currentPass3Str, currentPass1Str;
+	private ArrayList<String> currentPassAStr, currentPass3Str, currentPass1Str;
 	private LocalDateTime currentTime;
 	private int year;
 	private boolean containsA, containsE, containsI;
@@ -63,37 +63,65 @@ public class PasswordCracker {
 					for(int  j = 0; j < charCurrentPassword.length; j++){ 	
 						if(charCurrentPassword[j]=='a') {
 							tempcharCurrentPasswordA[j] = '@';
-							tempCurrentPasswordA.add(tempcharCurrentPasswordA);
+							tempCurrentPasswordA.add(tempcharCurrentPasswordA.clone());
 							containsA = true;
 						}
 						if(charCurrentPassword[j]=='e') {
 							tempcharCurrentPassword3[j] = '3';
-							tempCurrentPassword3.add(tempcharCurrentPassword3);
+							tempCurrentPassword3.add(tempcharCurrentPassword3.clone());
 							containsE = true;
 						}
 						if(charCurrentPassword[j]=='i') {
 							tempcharCurrentPassword1[j] = '1';
-							tempCurrentPassword1.add(tempcharCurrentPassword1);
+							tempCurrentPassword1.add(tempcharCurrentPassword1.clone());
 							containsI = true;
 						}
 					}	
 					
-					if (containsA)
-						for(char[] charSequence : tempCurrentPasswordA) 
-							currentPassAStr.add(String.valueOf(charSequence));						
-						//tempStrA = String.valueOf(tempcharCurrentPasswordA);					
-					if (containsE) 
-						for(char[] charSequence : tempCurrentPassword3) 
-							currentPass3Str.add(String.valueOf(charSequence));		
-						//tempStr3 = String.valueOf(tempcharCurrentPassword3);					
-					if (containsI) 
-						for(char[] charSequence : tempCurrentPassword1) 
-							currentPass1Str.add(String.valueOf(charSequence));		
-						//tempStr1 = String.valueOf(tempcharCurrentPassword1);
+					if (containsA) {
+						for(char[] charSequence : tempCurrentPasswordA) {
+							currentPassAStr.add(String.valueOf(charSequence));
+							for(int x = 0; x < charSequence.length; x++) {
+								if (charSequence[x] == '@') {
+									charSequence[x] = 'a';
+									if (!String.valueOf(charSequence).equals(currentPassword))
+										currentPassAStr.add(String.valueOf(charSequence));							
+									charSequence[x] = '@';
+								}
+							}
+						}	
+					}
+					if (containsE) {
+						for(char[] charSequence : tempCurrentPassword3) {
+							currentPass3Str.add(String.valueOf(charSequence));
+							for(int x = 0; x < charSequence.length; x++) {
+								if (charSequence[x] == '3') {
+									charSequence[x] = 'e';
+									if (!String.valueOf(charSequence).equals(currentPassword))
+										currentPassAStr.add(String.valueOf(charSequence));
+									charSequence[x] = '3';
+								}
+							}
+						}	
+					}
+					if (containsI) {
+						for(char[] charSequence : tempCurrentPassword1) {
+							currentPass1Str.add(String.valueOf(charSequence));
+							for(int x = 0; x < charSequence.length; x++) {
+								if (charSequence[x] == '1') {
+									charSequence[x] = 'i';
+									if (!String.valueOf(charSequence).equals(currentPassword))
+										currentPassAStr.add(String.valueOf(charSequence));
+									charSequence[x] = '1';
+								}
+							}
+						}
+					}
 					
 					if (containsA || containsE || containsI) 
-						checkAllAor3or1(tempStrA, tempStr3, tempStr1,
+						checkAllAor3or1(currentPassAStr, currentPass3Str, currentPass1Str,
 								Character.isDigit(charCurrentPassword[0]), database); 
+					
 					
 					if (Character.isDigit(charCurrentPassword[0])) { 		//If first letter is a digit, only encypt Year
 						tempStrYear = encrpytYear(currentPassword);
@@ -141,40 +169,45 @@ public class PasswordCracker {
 		return database.decrypt(encryptedPassword);
 	}
 	
-	private void checkAllAor3or1(String a, String e, String i,
-		boolean isLetter1Digit, DatabaseInterface database) {
-		
+	private void checkAllAor3or1(ArrayList<String> a, ArrayList<String> e, ArrayList<String> i,
+			boolean isLetter1Digit, DatabaseInterface database) {
+		//Get and save every combination of 		
 		char[] tmp;
-		if(containsA) {
-			saveA31(a, isLetter1Digit, database);
+		for(String passA : a) {
+			saveA31(passA, isLetter1Digit, database);
+			//if(passA.startsWith("b@")) System.out.println(passA);
+			
+			tmp = passA.toCharArray();
+			saveA31(replaceLetters(tmp, 'e', '3'), isLetter1Digit, database);			
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+			
+			tmp = passA.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
 		}
-		if(containsA && containsE) {
-			tmp = a.toCharArray();
+		for(String passE : e) {
+			saveA31(passE, isLetter1Digit, database);
+			
+			tmp = passE.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+			saveA31(replaceLetters(tmp, 'a', '1'), isLetter1Digit, database);
+			
+			tmp = passE.toCharArray();
+			saveA31(replaceLetters(tmp, 'a', '1'), isLetter1Digit, database);
+		}
+		for(String passI : i) {
+			saveA31(passI, isLetter1Digit, database);
+			
+			tmp = passI.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+			saveA31(replaceLetters(tmp, 'e', '3'), isLetter1Digit, database);
+			
+			tmp = passI.toCharArray();
 			saveA31(replaceLetters(tmp, 'e', '3'), isLetter1Digit, database);
 		}
-		if(containsA && containsE && containsI) {
-			tmp = a.toCharArray();
-			String tmpPass = replaceLetters(tmp, 'e', '3');
-			tmp = tmpPass.toCharArray();
-			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
-		}
-		if(containsE) {
-			saveA31(e, isLetter1Digit, database);
-		}
-		if(containsE && containsI) {
-			tmp = e.toCharArray();
-			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
-		}
-		if(containsI) {
-			saveA31(i, isLetter1Digit, database);
-		}
-		if(containsA && containsI) {
-			tmp = a.toCharArray();
-			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
-		}		
 	}
 	
 	private void saveA31(String pass, boolean isLetter1Digit, DatabaseInterface database) {
+		//add encrypt word to database
 		try {
 			if(isLetter1Digit) {
 				database.save(pass,Sha1.hash(pass));
