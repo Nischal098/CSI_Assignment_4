@@ -1,4 +1,3 @@
-
 // CSI2110/CSI2510 Assignment#4 2018 
 // Lucia Moura, Robert Laganiere
 // This interface is to be used, and not be changed
