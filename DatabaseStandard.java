@@ -6,7 +6,7 @@ public class DatabaseStandard extends HashMap<String,String> implements Database
 	//The items stored in the hash map are pairs of password and its encrypted version using SHA1.
 	//The key is obviously the encrypted password
 	private int size;	
-	private static final int INITITALSIZE = 1210000;
+	private static final int INITITALSIZE = 300000;
 	
 	public DatabaseStandard() {
 		super(INITITALSIZE);
@@ -21,8 +21,13 @@ public class DatabaseStandard extends HashMap<String,String> implements Database
 		// The key is the encryptedPassword the value is the plainPassword
 		
 		String replacedString = null;
-		
+	
 		replacedString = get(encryptedPassword);
+		if(replacedString == null) {
+			if (!containsKey(encryptedPassword)) {
+				size--;
+			}
+		}
 		put(encryptedPassword, plainPassword);
 		
 		size++;
