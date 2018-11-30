@@ -1,19 +1,38 @@
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PasswordCracker {
 	//This class receives the original passwords in the array list, and is responsible for creating more
 	//passwords with augmented rules and insert everything on the given database, which is
 	//originally empty
-	String currentPassword;
-	char[] charCurrentPassword;
-	String tempStr;
+	private String currentPassword;
+	private char[] charCurrentPassword;
+	private String tempStrCapitalize, tempStrYear, tempStrA, tempStr3, tempStr1;
+	private char[] tempcharCurrentPasswordA, tempcharCurrentPassword3, tempcharCurrentPassword1;
+	private List<char[]> tempCurrentPasswordA, tempCurrentPassword3, tempCurrentPassword1;
+	private List<String> currentPassAStr, currentPass3Str, currentPass1Str;
+	private LocalDateTime currentTime;
+	private int year;
+	private boolean containsA, containsE, containsI;
 	
 	public PasswordCracker() {
 		currentPassword = null;
 		charCurrentPassword = null;
-		tempStr = null;
+	
+		tempCurrentPasswordA = new ArrayList<char[]>();
+		tempCurrentPassword3 = new ArrayList<char[]>();
+		tempCurrentPassword1 = new ArrayList<char[]>();
+		
+		currentPassAStr = new ArrayList<String>();
+		currentPass3Str = new ArrayList<String>();
+		currentPass1Str = new ArrayList<String>();
+		
+		restartPassword();
+		
+		currentTime = LocalDateTime.now();
+		year = currentTime.getYear();
 	}
 	
 	public void createDatabase(ArrayList<String> commonPasswords, DatabaseInterface database) {
@@ -27,37 +46,152 @@ public class PasswordCracker {
 		//5. Use 1 instead of i, e.g. michael becomes m1chael
 				
 		for(int i = 0; i < commonPasswords.size(); i++) {
+			restartPassword();	
+			clearArrayLists();
 			currentPassword = commonPasswords.get(i);
-			charCurrentPassword = currentPassword.toCharArray(); //Get a character Array
+			charCurrentPassword = currentPassword.toCharArray(); 			//Get a character Array
+			tempcharCurrentPasswordA = currentPassword.toCharArray();
+			tempcharCurrentPassword3 = currentPassword.toCharArray();
+			tempcharCurrentPassword1 = currentPassword.toCharArray();
 			try {
 				database.save(currentPassword, Sha1.hash(currentPassword));	//Store Initial Password
-				
-				tempStr = encrpytCapitalize(charCurrentPassword);
-				database.save(tempStr,Sha1.hash(tempStr));	//Store Capitalized Passwords
-				
-				tempStr = encrpytYear(currentPassword);
-				database.save(tempStr,Sha1.hash(tempStr));	//Store Added Year Passwords
-				
-				tempStr = encrpytA(charCurrentPassword);
-				database.save(tempStr,Sha1.hash(tempStr));	//Store a to @ Passwords
-				
-				tempStr = encrpyt3(charCurrentPassword);
-				database.save(tempStr,Sha1.hash(tempStr));	//Store e to 3 Passwords
-	
-				tempStr = encrpyt1(charCurrentPassword);
-				database.save(tempStr,Sha1.hash(tempStr));	//Store i to 1 Passwords
-				
-				//Start Adding Combinations	
-				for(int j = 0; i <= 5; j++) {
+				try {
+					Integer.parseInt(currentPassword); 						//Check if password is all Integer
+					tempStrYear = encrpytYear(currentPassword);
+					database.save(tempStrYear,Sha1.hash(tempStrYear));			//Store Added Year Passwords				
+				} catch (NumberFormatException e) {
+					for(int  j = 0; j < charCurrentPassword.length; j++){ 	
+						if(charCurrentPassword[j]=='a') {
+							tempcharCurrentPasswordA[j] = '@';
+							tempCurrentPasswordA.add(tempcharCurrentPasswordA);
+							containsA = true;
+						}
+						if(charCurrentPassword[j]=='e') {
+							tempcharCurrentPassword3[j] = '3';
+							tempCurrentPassword3.add(tempcharCurrentPassword3);
+							containsE = true;
+						}
+						if(charCurrentPassword[j]=='i') {
+							tempcharCurrentPassword1[j] = '1';
+							tempCurrentPassword1.add(tempcharCurrentPassword1);
+							containsI = true;
+						}
+					}	
 					
-				}				
-				} catch (UnsupportedEncodingException e) { e.printStackTrace(); }			
+					if (containsA)
+						for(char[] charSequence : tempCurrentPasswordA) 
+							currentPassAStr.add(String.valueOf(charSequence));						
+						//tempStrA = String.valueOf(tempcharCurrentPasswordA);					
+					if (containsE) 
+						for(char[] charSequence : tempCurrentPassword3) 
+							currentPass3Str.add(String.valueOf(charSequence));		
+						//tempStr3 = String.valueOf(tempcharCurrentPassword3);					
+					if (containsI) 
+						for(char[] charSequence : tempCurrentPassword1) 
+							currentPass1Str.add(String.valueOf(charSequence));		
+						//tempStr1 = String.valueOf(tempcharCurrentPassword1);
+					
+					if (containsA || containsE || containsI) 
+						checkAllAor3or1(tempStrA, tempStr3, tempStr1,
+								Character.isDigit(charCurrentPassword[0]), database); 
+					
+					if (Character.isDigit(charCurrentPassword[0])) { 		//If first letter is a digit, only encypt Year
+						tempStrYear = encrpytYear(currentPassword);
+						database.save(tempStrYear,Sha1.hash(tempStrYear));	//Store Added Year Passwords										
+					} else {												//If not, Store Capitalized and Year
+						tempStrYear = encrpytYear(currentPassword);
+						database.save(tempStrYear,Sha1.hash(tempStrYear));	//Store Added Year Passwords
+						
+						tempStrCapitalize = encrpytCapitalize(charCurrentPassword);
+						database.save(tempStrCapitalize,Sha1.hash(tempStrCapitalize));	//Store Capitalized Passwords
+						
+						tempStrYear = encrpytYear(String.valueOf(charCurrentPassword));	//Store Capitalized and Year
+						database.save(tempStrYear,Sha1.hash(tempStrYear));
+					}
+				}	
+			} catch (UnsupportedEncodingException e) { e.printStackTrace(); }			
 		}		
 	}
 	
+	private void restartPassword() {
+		tempStrCapitalize = null;
+		tempStrYear = null;
+		tempStrA = null;
+		tempStr3 = null;
+		tempStr1 = null;
+		containsA = false;
+		containsE = false;
+		containsI = false;
+		tempcharCurrentPasswordA = null;
+		tempcharCurrentPassword3 = null;
+		tempcharCurrentPassword1 = null;
+	}
+	
+	private void clearArrayLists() {
+		tempCurrentPasswordA.clear();
+		tempCurrentPassword3.clear();
+		tempCurrentPassword1.clear();
+		currentPassAStr.clear();
+		currentPass3Str.clear();
+		currentPass1Str.clear();
+	}
+
 	public String crackPassword(String encryptedPassword, DatabaseInterface database) {
 		//uses database to crack encrypted password, returning the original password	
 		return database.decrypt(encryptedPassword);
+	}
+	
+	private void checkAllAor3or1(String a, String e, String i,
+		boolean isLetter1Digit, DatabaseInterface database) {
+		
+		char[] tmp;
+		if(containsA) {
+			saveA31(a, isLetter1Digit, database);
+		}
+		if(containsA && containsE) {
+			tmp = a.toCharArray();
+			saveA31(replaceLetters(tmp, 'e', '3'), isLetter1Digit, database);
+		}
+		if(containsA && containsE && containsI) {
+			tmp = a.toCharArray();
+			String tmpPass = replaceLetters(tmp, 'e', '3');
+			tmp = tmpPass.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+		}
+		if(containsE) {
+			saveA31(e, isLetter1Digit, database);
+		}
+		if(containsE && containsI) {
+			tmp = e.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+		}
+		if(containsI) {
+			saveA31(i, isLetter1Digit, database);
+		}
+		if(containsA && containsI) {
+			tmp = a.toCharArray();
+			saveA31(replaceLetters(tmp, 'i', '1'), isLetter1Digit, database);
+		}		
+	}
+	
+	private void saveA31(String pass, boolean isLetter1Digit, DatabaseInterface database) {
+		try {
+			if(isLetter1Digit) {
+				database.save(pass,Sha1.hash(pass));
+				database.save(encrpytYear(pass),Sha1.hash(encrpytYear(pass)));
+			} else {
+				database.save(pass,Sha1.hash(pass));
+				database.save(encrpytYear(pass),Sha1.hash(encrpytYear(pass)));
+				String tmpString = encrpytCapitalize(pass.toCharArray());
+				database.save(tmpString,Sha1.hash(tmpString));
+				database.save(encrpytYear(tmpString),Sha1.hash(encrpytYear(tmpString)));
+			}
+		} catch (UnsupportedEncodingException e1) {e1.printStackTrace(); }
+	}
+	
+	private String encrpytYear(String password) {
+		//O(1) operation
+		return (password + Integer.toString(year));
 	}
 	
 	private String encrpytCapitalize(char[] password) {
@@ -66,41 +200,11 @@ public class PasswordCracker {
 		return String.valueOf(password);
 	}
 	
-	private String encrpytYear(String password) {
-		//O(1) operation
-		LocalDateTime currentTime = LocalDateTime.now();
-		int year = currentTime.getYear();
-		return (password + Integer.toString(year));
-	}
-	
-	private String encrpytA(char[] password) {
-		//O(n) operation
-		for(int i = 0; i < password.length; i++){
-			if(password[i]=='a') {
-				password[i] = '@';
-			}
+	private String replaceLetters(char[] pass, char replaceThis, char ReplaceWith) {
+		for(int k = 0; k < pass.length; k ++) {
+			if(pass[k] == replaceThis)
+				pass[k] = ReplaceWith;
 		}
-		return String.valueOf(password);
+		return String.valueOf(pass);
 	}
-	
-	private String encrpyt3(char[] password) {
-		//O(n) operation
-		for(int i = 0; i < password.length; i++){
-			if(password[i]=='e') {
-				password[i] = '3';
-			}
-		}
-		return String.valueOf(password);
-	}
-	
-	private String encrpyt1(char[] password) {
-		//O(n) operation
-		for(int i = 0; i < password.length; i++){
-			if(password[i]=='i') {
-				password[i] = '1';
-			}
-		}
-		return String.valueOf(password);
-	}
-	
 }

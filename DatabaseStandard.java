@@ -9,7 +9,7 @@ public class DatabaseStandard extends HashMap<String,String> implements Database
 	private static final int INITITALSIZE = 1210000;
 	
 	public DatabaseStandard() {
-		super();
+		super(INITITALSIZE);
 		size = 0;
 	}
 
@@ -22,14 +22,9 @@ public class DatabaseStandard extends HashMap<String,String> implements Database
 		
 		String replacedString = null;
 		
-		if (size() == 0) {
-			put(encryptedPassword, plainPassword);
-		} else {
-			if (get(encryptedPassword)!=null) {
-				replacedString = get(encryptedPassword);
-				put(encryptedPassword, plainPassword);
-			}
-		}
+		replacedString = get(encryptedPassword);
+		put(encryptedPassword, plainPassword);
+		
 		size++;
 		return replacedString;
 	}

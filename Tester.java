@@ -75,8 +75,6 @@ public class Tester {
 				  if (secret.equals("")) System.out.println("<not found!>"); // *** crackPassword returns "" if not found
 				  else System.out.println(secret);
 				}
-					
-				
 			}
 	     }
 
