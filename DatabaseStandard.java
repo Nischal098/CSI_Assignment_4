@@ -1,16 +1,14 @@
 import java.util.HashMap;
 
-@SuppressWarnings("serial")
-public class DatabaseStandard extends HashMap<String,String> implements DatabaseInterface {
+public class DatabaseStandard implements DatabaseInterface {
 	//A Hash Map
 	//The items stored in the hash map are pairs of password and its encrypted version using SHA1.
 	//The key is obviously the encrypted password
-	private int size;	
-	private static final int INITITALSIZE = 300000;
+	private static final int INITITALSIZE = 179917;
+	private HashMap<String,String> hashMap;
 	
 	public DatabaseStandard() {
-		super(INITITALSIZE);
-		size = 0;
+		hashMap = new HashMap<>(INITITALSIZE);
 	}
 
 	@Override
@@ -20,30 +18,22 @@ public class DatabaseStandard extends HashMap<String,String> implements Database
 		// and previous value returned; otherwise, null is returned
 		// The key is the encryptedPassword the value is the plainPassword
 		
-		String replacedString = null;
-	
-		replacedString = get(encryptedPassword);
-		if(replacedString == null) {
-			if (!containsKey(encryptedPassword)) {
-				size--;
-			}
-		}
-		put(encryptedPassword, plainPassword);
-		
-		size++;
+		String replacedString = null;	
+		replacedString = hashMap.get(encryptedPassword);
+		hashMap.put(encryptedPassword, plainPassword);
 		return replacedString;
 	}
 
 	@Override
 	public String decrypt(String encryptedPassword) {
 		// returns plain password corresponding to encrypted password
-		return get(encryptedPassword);
+		return hashMap.get(encryptedPassword);
 	}
 
 	@Override
 	public int size() {
 		// returns the number of password pairs stored in the database
-		return size;
+		return hashMap.size();
 	}
 
 	public void printStatistics() {

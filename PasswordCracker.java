@@ -90,16 +90,6 @@ public class PasswordCracker {
 								}
 							}
 						}
-						/*
-						for(int x = 0; x < tempcharCurrentPasswordA.length; x++) {
-							if (tempcharCurrentPasswordA[x] == '@') {
-								tempcharCurrentPasswordA[x] = 'a';
-								if (!String.valueOf(tempcharCurrentPasswordA).equals(currentPassword))
-									currentPassAStr.add(String.valueOf(tempcharCurrentPasswordA));							
-								tempcharCurrentPasswordA[x] = '@';
-							}
-						}*/
-	
 					}
 					if (containsE) {
 						for(char[] charSequence : tempCurrentPassword3) {
@@ -113,15 +103,6 @@ public class PasswordCracker {
 								}
 							}
 						}
-						/*
-						for(int x = 0; x < tempcharCurrentPasswordA.length; x++) {
-							if (tempcharCurrentPasswordA[x] == '3') {
-								tempcharCurrentPasswordA[x] = 'e';
-								if (!String.valueOf(tempcharCurrentPasswordA).equals(currentPassword))
-									currentPassAStr.add(String.valueOf(tempcharCurrentPasswordA));							
-								tempcharCurrentPasswordA[x] = '3';
-							}
-						}*/
 					}
 					if (containsI) {
 						for(char[] charSequence : tempCurrentPassword1) {
@@ -134,15 +115,7 @@ public class PasswordCracker {
 									charSequence[x] = '1';
 								}
 							}
-						}/*
-						for(int x = 0; x < tempcharCurrentPasswordA.length; x++) {
-							if (tempcharCurrentPasswordA[x] == '1') {
-								tempcharCurrentPasswordA[x] = 'i';
-								if (!String.valueOf(tempcharCurrentPasswordA).equals(currentPassword))
-									currentPassAStr.add(String.valueOf(tempcharCurrentPasswordA));							
-								tempcharCurrentPasswordA[x] = '1';
-							}
-						}*/
+						}
 					}
 					
 					if (containsA || containsE || containsI) 

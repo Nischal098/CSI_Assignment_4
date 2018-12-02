@@ -4,3 +4,7 @@
 /DatabaseMine.class
 /DatabaseStandard.class
 /PasswordCracker.class
+/DatabaseMine$MyEntry.class
+/DatabaseMine$Entry.class
+/DatabaseMine$HashEntry.class
+/DatabaseMine$MyHashEntry.class
